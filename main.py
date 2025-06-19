@@ -1,23 +1,28 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, jsonify
+import os
 from gtts import gTTS
 import uuid
 
 app = Flask(__name__)
 
-@app.route('/tts', methods=['POST'])
+@app.route("/tts", methods=["POST"])
 def tts():
-    data = request.get_json()
-    text = data.get('text', '')
+    data = request.json
+    text = data.get("text", "")
+    lang = data.get("lang", "en")
 
     if not text:
-        return {"error": "No text provided"}, 400
+        return jsonify({"error": "Missing text"}), 400
 
     filename = f"{uuid.uuid4()}.mp3"
-    tts = gTTS(text=text, lang='en')
-    tts.save(filename)
+    tts = gTTS(text=text, lang=lang)
+    filepath = f"static/audio/{filename}"
+    os.makedirs("static/audio", exist_ok=True)
+    tts.save(filepath)
 
-    return send_file(filename, mimetype="audio/mpeg")
+    audio_url = request.host_url + "audio/" + filename
+    return jsonify({"audio_url": audio_url})
 
-# For production:
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
