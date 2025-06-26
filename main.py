@@ -5,7 +5,7 @@ import uuid
 
 app = Flask(__name__)
 
-# Use /tmp for file storage on Render
+# ✅ Use Render-safe location
 AUDIO_FOLDER = "/tmp/audio"
 os.makedirs(AUDIO_FOLDER, exist_ok=True)
 
