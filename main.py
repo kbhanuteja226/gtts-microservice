@@ -5,7 +5,7 @@ import uuid
 
 app = Flask(__name__)
 
-# ✅ Use Render-safe location
+# ✅ Only /tmp is writable on Render Free Tier
 AUDIO_FOLDER = "/tmp/audio"
 os.makedirs(AUDIO_FOLDER, exist_ok=True)
 
@@ -21,9 +21,11 @@ def tts():
     filename = f"{uuid.uuid4()}.mp3"
     filepath = os.path.join(AUDIO_FOLDER, filename)
 
+    # Save TTS audio to /tmp/audio
     tts = gTTS(text=text, lang=lang)
     tts.save(filepath)
 
+    # Return full public URL
     audio_url = request.host_url + "audio/" + filename
     return jsonify({"audio_url": audio_url})
 
